@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Testpoint · Pak Study · Study Hub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0B1614; --bg-soft: #102018; --card: #132820; --card-border: #1F3B2E;
+    --text: #EAF3EC; --text-dim: #8FAA9C; --accent: #34D399; --accent-soft: rgba(52,211,153,0.14);
+    --accent-2: #FBBF24; --accent-2-soft: rgba(251,191,36,0.16);
+    --shadow: 0 10px 30px rgba(0,0,0,0.35); --radius: 16px;
+  }
+  html[data-theme="light"] {
+    --bg: #FAF7EF; --bg-soft: #F1ECDD; --card: #FFFFFF; --card-border: #E7E0CC;
+    --text: #1B2420; --text-dim: #66766C; --accent: #0F9D6E; --accent-soft: rgba(15,157,110,0.10);
+    --accent-2: #B5790A; --accent-2-soft: rgba(181,121,10,0.12); --shadow: 0 10px 24px rgba(20,30,25,0.08);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh;
+    background: radial-gradient(circle at top, var(--bg-soft), var(--bg) 55%);
+    color: var(--text); font-family: 'Inter', system-ui, sans-serif; line-height: 1.6;
+    -webkit-font-smoothing: antialiased; transition: background .25s ease, color .25s ease;
+  }
+  h1, h2, h3, .card-title { font-family: 'Sora', system-ui, sans-serif; }
+  a { color: var(--accent); }
+  .topbar {
+    position: sticky; top: 0; z-index: 20; display: flex; align-items: center;
+    justify-content: space-between; gap: 12px; padding: 14px clamp(16px, 4vw, 40px);
+    background: color-mix(in srgb, var(--bg) 88%, transparent);
+    backdrop-filter: blur(10px); border-bottom: 1px solid var(--card-border);
+  }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 1.05rem; }
+  .brand .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 12px var(--accent); }
+  .theme-toggle {
+    border: 1px solid var(--card-border); background: var(--card); color: var(--text);
+    border-radius: 999px; padding: 8px 16px; font-size: 0.85rem; font-weight: 600;
+    cursor: pointer; display: flex; align-items: center; gap: 6px;
+    transition: border-color .2s ease, transform .15s ease;
+  }
+  .theme-toggle:hover { border-color: var(--accent); }
+  .theme-toggle:active { transform: scale(0.96); }
+  main { max-width: 760px; margin: 0 auto; padding: clamp(20px, 5vw, 40px) clamp(16px, 5vw, 24px) 80px; }
+  .breadcrumb { font-size: 0.85rem; color: var(--text-dim); margin-bottom: 18px; }
+  .breadcrumb a { color: var(--text-dim); text-decoration: none; }
+  .breadcrumb a:hover { color: var(--accent); }
+  .hero { text-align: center; margin-bottom: 28px; }
+  .hero h1 { font-size: clamp(1.5rem, 4vw, 2.1rem); margin: 0 0 8px; font-weight: 800; }
+  .hero p { color: var(--text-dim); margin: 0; font-size: 0.95rem; }
+  .grid { display: grid; gap: 10px; grid-template-columns: 1fr; }
+  @media (min-width: 540px) {
+    .grid { grid-template-columns: 1fr 1fr; }
+  }
+  .set-card {
+    display: flex; align-items: center; gap: 14px;
+    background: var(--card); border: 1px solid var(--card-border); border-radius: 14px;
+    padding: 14px 16px; box-shadow: var(--shadow); text-decoration: none; color: var(--text);
+    transition: transform .15s ease, border-color .2s ease;
+  }
+  .set-card:hover { transform: translateY(-2px); border-color: var(--accent); }
+  .seal {
+    flex: 0 0 auto; width: 36px; height: 36px; border-radius: 50%;
+    border: 2px dashed var(--accent); color: var(--accent); display: flex;
+    align-items: center; justify-content: center; font-family: 'Sora', sans-serif;
+    font-weight: 700; font-size: 0.85rem; transform: rotate(-6deg);
+  }
+  .card-body { flex: 1; }
+  .card-title { font-weight: 700; font-size: 0.95rem; margin: 0 0 2px; }
+  .card-sub { color: var(--text-dim); font-size: 0.8rem; margin: 0; }
+  .chevron { color: var(--text-dim); font-size: 1.1rem; }
+  footer.encourage {
+    text-align: center; color: var(--text-dim); font-size: 0.9rem; margin-top: 44px;
+    padding-top: 20px; border-top: 1px dashed var(--card-border);
+  }
+  footer.encourage strong { color: var(--accent); }
+</style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="brand"><span class="dot"></span> Study Hub</div>
+    <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">🌙 Dark</button>
+  </div>
+  <main>
+    <div class="breadcrumb"><a href="index.html">Study Hub</a> / <a href="pak-study.html">Pak Study</a> / Testpoint</div>
+    <div class="hero">
+      <h1>Testpoint sets</h1>
+      <p>989 pages, grouped into 20 sets of 50 pages each. Pick a set to start.</p>
+    </div>
+
+    <div class="grid">
+      <a class="set-card" href="pak_study_mcqs_pages_1-50.html">
+        <div class="seal">1</div>
+        <div class="card-body">
+          <p class="card-title">Pages 1–50</p>
+          <p class="card-sub">500 MCQs</p>
+        </div>
+        <div class="chevron">›</div>
+      </a>
+      <a class="set-card" href="pak_study_mcqs_pages_51-100.html">
+        <div class="seal">2</div>
+        <div class="card-body">
+          <p class="card-title">Pages 51–100</p>
+          <p class="card-sub">500 MCQs</p>
+        </div>
+        <div class="chevron">›</div>
+      </a>
+      <a class="set-card" href="pak_study_mcqs_pages_101-150.html">
+        <div class="seal">3</div>
+        <div class="card-body">
+          <p class="card-title">Pages 101–150</p>
+          <p class="card-sub">500 MCQs</p>
+        </div>
+        <div class="chevron">›</div>
+      </a>
+      <a class="set-card" href="pak_study_mcqs_pages_151-200.html">
+        <div class="seal">4</div>
+        <div class="card-body">
+          <p class="card-title">Pages 151–200</p>
+          <p class="card-sub">500 MCQs</p>
+        </div>
+        <div class="chevron">›</div>
+      </a>
+      <a class="set-card" href="pak_study_mcqs_pages_201-250.html">
+        <div class="seal">5</div>
+        <div class="card-body">
+          <p class="card-title">Pages 201–250</p>
+          <p class="card-sub">500 MCQs</p>
+        </div>
+        <div class="chevron">›</div>
+      </a>
+      <a class="set-card" href="pak_study_mcqs_pages_251-300.html">
+        <div class="seal">6</div>
+        <div class="card-body">
+          <p class="card-title">Pages 251–300</p>
+          <p class="card-sub">500 MCQs</p>
+        </div>
+        <div class="chevron">›</div>
+      </a>
+      <a class="set-card" href="pak_study_mcqs_pages_301-350.html">
+        <div class="seal">7</div>
+        <div class="card-body">
+          <p class="card-title">Pages 301–350</p>
+          <p class="card-sub">500 MCQs</p>
+        </div>
+        <div class="chevron">›</div>
+      </a>
+      <a class="set-card" href="pak_study_mcqs_pages_351-400.html">
+        <div class="seal">8</div>
+        <div class="card-body">
+          <p class="card-title">Pages 351–400</p>
+          <p class="card-sub">500 MCQs</p>
+        </div>
+        <div class="chevron">›</div>
+      </a>
+      <a class="set-card" href="pak_study_mcqs_pages_401-450.html">
+        <div class="seal">9</div>
+        <div class="card-body">
+          <p class="card-title">Pages 401–450</p>
+          <p class="card-sub">500 MCQs</p>
+        </div>
+        <div class="chevron">›</div>
+      </a>
+      <a class="set-card" href="pak_study_mcqs_pages_451-500.html">
+        <div class="seal">10</div>
+        <div class="card-body">
+          <p class="card-title">Pages 451–500</p>
+          <p class="card-sub">500 MCQs</p>
+        </div>
+        <div class="chevron">›</div>
+      </a>
+      <a class="set-card" href="pak_study_mcqs_pages_501-550.html">
+        <div class="seal">11</div>
+        <div class="card-body">
+          <p class="card-title">Pages 501–550</p>
+          <p class="card-sub">500 MCQs</p>
+        </div>
+        <div class="chevron">›</div>
+      </a>
+      <a class="set-card" href="pak_study_mcqs_pages_551-600.html">
+        <div class="seal">12</div>
+        <div class="card-body">
+          <p class="card-title">Pages 551–600</p>
+          <p class="card-sub">500 MCQs</p>
+        </div>
+        <div class="chevron">›</div>
+      </a>
+      <a class="set-card" href="pak_study_mcqs_pages_601-650.html">
+        <div class="seal">13</div>
+        <div class="card-body">
+          <p class="card-title">Pages 601–650</p>
+          <p class="card-sub">500 MCQs</p>
+        </div>
+        <div class="chevron">›</div>
+      </a>
+      <a class="set-card" href="pak_study_mcqs_pages_651-700.html">
+        <div class="seal">14</div>
+        <div class="card-body">
+          <p class="card-title">Pages 651–700</p>
+          <p class="card-sub">500 MCQs</p>
+        </div>
+        <div class="chevron">›</div>
+      </a>
+      <a class="set-card" href="pak_study_mcqs_pages_701-750.html">
+        <div class="seal">15</div>
+        <div class="card-body">
+          <p class="card-title">Pages 701–750</p>
+          <p class="card-sub">500 MCQs</p>
+        </div>
+        <div class="chevron">›</div>
+      </a>
+      <a class="set-card" href="pak_study_mcqs_pages_751-800.html">
+        <div class="seal">16</div>
+        <div class="card-body">
+          <p class="card-title">Pages 751–800</p>
+          <p class="card-sub">500 MCQs</p>
+        </div>
+        <div class="chevron">›</div>
+      </a>
+      <a class="set-card" href="pak_study_mcqs_pages_801-850.html">
+        <div class="seal">17</div>
+        <div class="card-body">
+          <p class="card-title">Pages 801–850</p>
+          <p class="card-sub">500 MCQs</p>
+        </div>
+        <div class="chevron">›</div>
+      </a>
+      <a class="set-card" href="pak_study_mcqs_pages_851-900.html">
+        <div class="seal">18</div>
+        <div class="card-body">
+          <p class="card-title">Pages 851–900</p>
+          <p class="card-sub">500 MCQs</p>
+        </div>
+        <div class="chevron">›</div>
+      </a>
+      <a class="set-card" href="pak_study_mcqs_pages_901-950.html">
+        <div class="seal">19</div>
+        <div class="card-body">
+          <p class="card-title">Pages 901–950</p>
+          <p class="card-sub">500 MCQs</p>
+        </div>
+        <div class="chevron">›</div>
+      </a>
+      <a class="set-card" href="pak_study_mcqs_pages_951-989.html">
+        <div class="seal">20</div>
+        <div class="card-body">
+          <p class="card-title">Pages 951–989</p>
+          <p class="card-sub">390 MCQs</p>
+        </div>
+        <div class="chevron">›</div>
+      </a>
+    </div>
+
+    <footer class="encourage">
+      <strong>20 sets, 9,890 MCQs.</strong> Work through them in order, or jump to wherever you left off.
+    </footer>
+  </main>
+  <script>
+    function applyTheme(t) {
+      document.documentElement.setAttribute('data-theme', t);
+      document.getElementById('themeBtn').textContent = t === 'dark' ? '🌙 Dark' : '☀️ Light';
+      localStorage.setItem('pakstudy-theme', t);
+    }
+    function toggleTheme() {
+      const current = document.documentElement.getAttribute('data-theme');
+      applyTheme(current === 'dark' ? 'light' : 'dark');
+    }
+    (function () {
+      const saved = localStorage.getItem('pakstudy-theme');
+      if (saved) applyTheme(saved);
+    })();
+  </script>
+</body>
+</html>
