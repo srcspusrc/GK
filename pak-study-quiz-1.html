@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pak Study Quiz 1 (Q1-200) · Study Hub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0B1614; --bg-soft: #102018; --card: #132820; --card-border: #1F3B2E;
+    --text: #EAF3EC; --text-dim: #8FAA9C; --accent: #34D399; --accent-soft: rgba(52,211,153,0.14);
+    --accent-2: #FBBF24; --accent-2-soft: rgba(251,191,36,0.16);
+    --danger: #F87171; --danger-soft: rgba(248,113,113,0.14);
+    --shadow: 0 10px 30px rgba(0,0,0,0.35); --radius: 16px;
+  }
+  html[data-theme="light"] {
+    --bg: #FAF7EF; --bg-soft: #F1ECDD; --card: #FFFFFF; --card-border: #E7E0CC;
+    --text: #1B2420; --text-dim: #66766C; --accent: #0F9D6E; --accent-soft: rgba(15,157,110,0.10);
+    --accent-2: #B5790A; --accent-2-soft: rgba(181,121,10,0.12);
+    --danger: #DC2626; --danger-soft: rgba(220,38,38,0.10);
+    --shadow: 0 10px 24px rgba(20,30,25,0.08);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh;
+    background: radial-gradient(circle at top, var(--bg-soft), var(--bg) 55%);
+    color: var(--text); font-family: 'Inter', system-ui, sans-serif; line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3, .card-title { font-family: 'Sora', system-ui, sans-serif; }
+  a { color: var(--accent); text-decoration: none; }
+
+  .topbar {
+    position: sticky; top: 0; z-index: 30; display: flex; align-items: center;
+    justify-content: space-between; gap: 12px; padding: 14px clamp(16px, 4vw, 40px);
+    background: color-mix(in srgb, var(--bg) 88%, transparent);
+    backdrop-filter: blur(10px); border-bottom: 1px solid var(--card-border);
+  }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 1.0rem; }
+  .brand .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 12px var(--accent); }
+  .timer {
+    font-family: 'Sora', sans-serif; font-weight: 700; font-size: 1rem;
+    background: var(--card); border: 1px solid var(--card-border); border-radius: 999px;
+    padding: 7px 16px; color: var(--accent-2); min-width: 76px; text-align: center;
+  }
+  .timer.low { color: var(--danger); border-color: var(--danger); }
+  .theme-toggle {
+    border: 1px solid var(--card-border); background: var(--card); color: var(--text);
+    border-radius: 999px; padding: 8px 14px; font-size: 0.8rem; font-weight: 600; cursor: pointer;
+  }
+
+  main { max-width: 720px; margin: 0 auto; padding: clamp(20px, 5vw, 40px) clamp(16px, 5vw, 24px) 90px; }
+  .breadcrumb { font-size: 0.85rem; color: var(--text-dim); margin-bottom: 18px; }
+  .breadcrumb a { color: var(--text-dim); }
+  .breadcrumb a:hover { color: var(--accent); }
+
+  /* ---------- Intro screen ---------- */
+  .intro { text-align: center; }
+  .intro h1 { font-size: clamp(1.5rem, 4vw, 2.1rem); margin: 6px 0 10px; font-weight: 800; }
+  .intro p { color: var(--text-dim); margin: 0 auto 20px; max-width: 480px; }
+  .stat-row { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; margin: 24px 0; }
+  .stat-chip {
+    background: var(--card); border: 1px solid var(--card-border); border-radius: 14px;
+    padding: 14px 20px; min-width: 110px; box-shadow: var(--shadow);
+  }
+  .stat-chip .num { font-family: 'Sora', sans-serif; font-weight: 800; font-size: 1.4rem; color: var(--accent); }
+  .stat-chip .label { font-size: 0.78rem; color: var(--text-dim); margin-top: 2px; }
+  .start-btn {
+    font-family: 'Sora', sans-serif; font-weight: 700; font-size: 1rem;
+    background: var(--accent); color: #06140F; border: none; border-radius: 999px;
+    padding: 14px 36px; cursor: pointer; box-shadow: var(--shadow);
+    transition: transform .15s ease;
+  }
+  .start-btn:hover { transform: translateY(-2px); }
+  .start-btn:active { transform: scale(0.97); }
+
+  /* ---------- Quiz screen ---------- */
+  .progress-track {
+    height: 8px; border-radius: 999px; background: var(--card-border); overflow: hidden; margin-bottom: 22px;
+  }
+  .progress-fill { height: 100%; background: var(--accent); transition: width .25s ease; }
+  .q-counter { font-size: 0.85rem; color: var(--text-dim); margin-bottom: 8px; }
+  .question-card {
+    background: var(--card); border: 1px solid var(--card-border); border-radius: var(--radius);
+    padding: clamp(18px, 4vw, 26px); box-shadow: var(--shadow);
+  }
+  .q-text { font-weight: 700; font-size: 1.1rem; margin: 0 0 18px; }
+  .option {
+    display: flex; align-items: center; gap: 12px;
+    border: 1px solid var(--card-border); border-radius: 12px; padding: 13px 16px;
+    margin-bottom: 10px; cursor: pointer; background: var(--bg-soft);
+    transition: border-color .15s ease, background .15s ease;
+  }
+  .option:hover { border-color: var(--accent); }
+  .option.selected { border-color: var(--accent); background: var(--accent-soft); }
+  .option .letter {
+    flex: 0 0 auto; width: 26px; height: 26px; border-radius: 50%;
+    border: 1px solid var(--card-border); display: flex; align-items: center; justify-content: center;
+    font-size: 0.78rem; font-weight: 700; color: var(--text-dim);
+  }
+  .option.selected .letter { background: var(--accent); color: #06140F; border-color: var(--accent); }
+  .nav-row { display: flex; justify-content: space-between; gap: 10px; margin-top: 20px; }
+  .nav-btn {
+    font-family: 'Inter', sans-serif; font-weight: 600; font-size: 0.9rem;
+    border: 1px solid var(--card-border); background: var(--card); color: var(--text);
+    border-radius: 999px; padding: 11px 22px; cursor: pointer;
+  }
+  .nav-btn.primary { background: var(--accent); color: #06140F; border-color: var(--accent); }
+  .nav-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* ---------- Result screen ---------- */
+  .result { text-align: center; }
+  .score-ring {
+    width: 160px; height: 160px; border-radius: 50%; margin: 10px auto 18px;
+    display: flex; align-items: center; justify-content: center; flex-direction: column;
+    border: 6px solid var(--accent); box-shadow: var(--shadow);
+  }
+  .score-ring .pct { font-family: 'Sora', sans-serif; font-weight: 800; font-size: 2.1rem; }
+  .score-ring .lbl { font-size: 0.78rem; color: var(--text-dim); }
+  .result h2 { font-size: 1.4rem; margin: 6px 0; }
+  .result p.msg { color: var(--text-dim); margin: 0 0 22px; }
+  .breakdown { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; margin-bottom: 26px; }
+  .review-list { text-align: left; margin-top: 10px; }
+  .review-item {
+    background: var(--card); border: 1px solid var(--card-border); border-radius: 12px;
+    padding: 14px 16px; margin-bottom: 10px;
+  }
+  .review-item .rq { font-weight: 600; margin-bottom: 6px; }
+  .review-item .ra { font-size: 0.88rem; }
+  .review-item .ra.correct { color: var(--accent); }
+  .review-item .ra.wrong { color: var(--danger); }
+  .review-item .ra.given { color: var(--text-dim); }
+  details.review-toggle summary {
+    cursor: pointer; font-weight: 600; color: var(--accent); margin-bottom: 14px; font-size: 0.9rem;
+  }
+
+  footer.encourage {
+    text-align: center; color: var(--text-dim); font-size: 0.88rem; margin-top: 40px;
+    padding-top: 18px; border-top: 1px dashed var(--card-border);
+  }
+  footer.encourage strong { color: var(--accent); }
+
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="brand"><span class="dot"></span> Pak Study Quiz 1</div>
+    <div style="display:flex; align-items:center; gap:10px;">
+      <div class="timer" id="timerDisplay">30:00</div>
+      <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">🌙</button>
+    </div>
+  </div>
+
+  <main>
+    <div class="breadcrumb"><a href="index.html">Study Hub</a> / <a href="pak-study.html">Pak Study</a> / Quiz 1</div>
+
+    <!-- INTRO SCREEN -->
+    <section id="introScreen" class="intro">
+      <h1>Quiz 1 · Questions 1–200</h1>
+      <p>100 MCQs built from the first 200 Pak Study questions — 60 are drawn straight from the questions you've already revised, and 40 dig into the details hiding inside their explanations.</p>
+      <div class="stat-row">
+        <div class="stat-chip"><div class="num">100</div><div class="label">Questions</div></div>
+        <div class="stat-chip"><div class="num">30:00</div><div class="label">Time limit</div></div>
+        <div class="stat-chip"><div class="num">4</div><div class="label">Options each</div></div>
+      </div>
+      <button class="start-btn" onclick="startQuiz()">Start Quiz</button>
+    </section>
+
+    <!-- QUIZ SCREEN -->
+    <section id="quizScreen" class="hidden">
+      <div class="q-counter" id="qCounter">Question 1 of 100</div>
+      <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:1%;"></div></div>
+      <div class="question-card">
+        <p class="q-text" id="qText"></p>
+        <div id="optionsBox"></div>
+      </div>
+      <div class="nav-row">
+        <button class="nav-btn" id="prevBtn" onclick="prevQuestion()">← Previous</button>
+        <button class="nav-btn primary" id="nextBtn" onclick="nextQuestion()">Next →</button>
+      </div>
+    </section>
+
+    <!-- RESULT SCREEN -->
+    <section id="resultScreen" class="hidden result">
+      <div class="score-ring" id="scoreRing">
+        <div class="pct" id="scorePct">0%</div>
+        <div class="lbl">Score</div>
+      </div>
+      <h2 id="scoreHeadline"></h2>
+      <p class="msg" id="scoreMsg"></p>
+      <div class="breakdown">
+        <div class="stat-chip"><div class="num" id="correctCount" style="color:var(--accent)">0</div><div class="label">Correct</div></div>
+        <div class="stat-chip"><div class="num" id="wrongCount" style="color:var(--danger)">0</div><div class="label">Wrong</div></div>
+        <div class="stat-chip"><div class="num" id="skippedCount" style="color:var(--text-dim)">0</div><div class="label">Skipped</div></div>
+      </div>
+      <details class="review-toggle">
+        <summary>Show full answer review</summary>
+        <div class="review-list" id="reviewList"></div>
+      </details>
+    </section>
+
+    <footer class="encourage">
+      <strong>Stay sharp.</strong> Review your mistakes, then come back and beat your own score.
+    </footer>
+  </main>
+
+<script>
+let QUIZ_DATA = [];
+let current = 0;
+let answers = []; // index of selected option per question, -1 if unanswered
+let timeLeft = 30 * 60; // seconds
+let timerInterval = null;
+let started = false;
+
+fetch('quiz_data.json')
+  .then(r => r.json())
+  .then(data => {
+    QUIZ_DATA = data;
+    answers = new Array(QUIZ_DATA.length).fill(-1);
+  })
+  .catch(() => {
+    document.getElementById('introScreen').innerHTML =
+      '<p>Could not load quiz_data.json. Make sure it is uploaded in the same folder as this page.</p>';
+  });
+
+function applyTheme(t) {
+  document.documentElement.setAttribute('data-theme', t);
+  document.getElementById('themeBtn').textContent = t === 'dark' ? '🌙' : '☀️';
+  localStorage.setItem('pakstudy-theme', t);
+}
+function toggleTheme() {
+  const cur = document.documentElement.getAttribute('data-theme');
+  applyTheme(cur === 'dark' ? 'light' : 'dark');
+}
+(function () {
+  const saved = localStorage.getItem('pakstudy-theme');
+  if (saved) applyTheme(saved);
+})();
+
+function startQuiz() {
+  if (!QUIZ_DATA.length) { alert('Quiz data is still loading, please wait a second and try again.'); return; }
+  started = true;
+  document.getElementById('introScreen').classList.add('hidden');
+  document.getElementById('quizScreen').classList.remove('hidden');
+  renderQuestion();
+  timerInterval = setInterval(tick, 1000);
+}
+
+function tick() {
+  timeLeft--;
+  const m = Math.floor(timeLeft / 60);
+  const s = timeLeft % 60;
+  const display = document.getElementById('timerDisplay');
+  display.textContent = `${m}:${s.toString().padStart(2,'0')}`;
+  if (timeLeft <= 60) display.classList.add('low');
+  if (timeLeft <= 0) {
+    clearInterval(timerInterval);
+    finishQuiz();
+  }
+}
+
+function renderQuestion() {
+  const q = QUIZ_DATA[current];
+  document.getElementById('qCounter').textContent = `Question ${current + 1} of ${QUIZ_DATA.length}`;
+  document.getElementById('progressFill').style.width = ((current + 1) / QUIZ_DATA.length * 100) + '%';
+  document.getElementById('qText').textContent = q.q;
+
+  const box = document.getElementById('optionsBox');
+  box.innerHTML = '';
+  const letters = ['A', 'B', 'C', 'D'];
+  q.o.forEach((opt, i) => {
+    const div = document.createElement('div');
+    div.className = 'option' + (answers[current] === i ? ' selected' : '');
+    div.innerHTML = `<span class="letter">${letters[i]}</span><span>${opt}</span>`;
+    div.onclick = () => selectOption(i);
+    box.appendChild(div);
+  });
+
+  document.getElementById('prevBtn').disabled = current === 0;
+  document.getElementById('nextBtn').textContent = current === QUIZ_DATA.length - 1 ? 'Finish' : 'Next →';
+}
+
+function selectOption(i) {
+  answers[current] = i;
+  renderQuestion();
+}
+
+function nextQuestion() {
+  if (current < QUIZ_DATA.length - 1) {
+    current++;
+    renderQuestion();
+  } else {
+    finishQuiz();
+  }
+}
+function prevQuestion() {
+  if (current > 0) {
+    current--;
+    renderQuestion();
+  }
+}
+
+function finishQuiz() {
+  if (timerInterval) clearInterval(timerInterval);
+  document.getElementById('quizScreen').classList.add('hidden');
+  document.getElementById('resultScreen').classList.remove('hidden');
+
+  let correct = 0, wrong = 0, skipped = 0;
+  const letters = ['A', 'B', 'C', 'D'];
+  const reviewBox = document.getElementById('reviewList');
+  reviewBox.innerHTML = '';
+
+  QUIZ_DATA.forEach((q, i) => {
+    const given = answers[i];
+    let statusHtml = '';
+    if (given === -1) {
+      skipped++;
+      statusHtml = `<div class="ra given">Skipped — Correct answer: ${q.o[q.c]}</div>`;
+    } else if (given === q.c) {
+      correct++;
+      statusHtml = `<div class="ra correct">✓ Correct: ${q.o[q.c]}</div>`;
+    } else {
+      wrong++;
+      statusHtml = `<div class="ra wrong">✗ Your answer: ${q.o[given]} — Correct: ${q.o[q.c]}</div>`;
+    }
+    const item = document.createElement('div');
+    item.className = 'review-item';
+    item.innerHTML = `<div class="rq">${i + 1}. ${q.q}</div>${statusHtml}`;
+    reviewBox.appendChild(item);
+  });
+
+  const pct = Math.round((correct / QUIZ_DATA.length) * 100);
+  document.getElementById('scorePct').textContent = pct + '%';
+  document.getElementById('correctCount').textContent = correct;
+  document.getElementById('wrongCount').textContent = wrong;
+  document.getElementById('skippedCount').textContent = skipped;
+
+  const ring = document.getElementById('scoreRing');
+  let headline, msg, ringColor;
+  if (pct >= 80) { headline = 'Excellent work!'; msg = "You've clearly put in the revision. Keep this momentum going."; ringColor = 'var(--accent)'; }
+  else if (pct >= 60) { headline = 'Good effort.'; msg = 'Solid result — revisit the ones you missed and you\'ll be at the top soon.'; ringColor = 'var(--accent-2)'; }
+  else { headline = 'Keep practicing.'; msg = 'Go through the explanations on the question pages, then try again — you\'ll improve fast.'; ringColor = 'var(--danger)'; }
+  document.getElementById('scoreHeadline').textContent = headline;
+  document.getElementById('scoreMsg').textContent = msg;
+  ring.style.borderColor = ringColor;
+}
+
+window.addEventListener('beforeunload', function (e) {
+  if (started && !document.getElementById('resultScreen') .classList.contains('hidden') === false) {
+    // only warn if quiz is in progress (not finished)
+    if (document.getElementById('quizScreen') && !document.getElementById('quizScreen').classList.contains('hidden')) {
+      e.preventDefault();
+      e.returnValue = '';
+    }
+  }
+});
+</script>
+</body>
+</html>
