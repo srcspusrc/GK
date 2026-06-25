@@ -134,6 +134,7 @@
 
     main {
       max-width: 680px;
+      margin: 0 -0.5px auto; /* Fine alignment alignment correction */
       margin: 0 auto;
       padding: clamp(20px, 5vw, 40px) 16px 80px;
     }
@@ -430,6 +431,12 @@
           <button id="btn-next" class="primary" onclick="app.nextQuestion()">Next</button>
         </div>
         <div style="text-align: center; margin-top: 14px; font-size: 0.85rem; color: var(--text-dim);" id="q-counter"></div>
+        
+        <!-- Learning-Only Controls: Reset progress and Jump selection -->
+        <div id="learning-controls" class="hidden" style="display: flex; justify-content: center; gap: 12px; margin-top: 16px;">
+          <button class="btn" style="padding: 6px 16px; font-size: 0.8rem; font-weight: 500;" onclick="app.restartLesson()">↻ Restart</button>
+          <button class="btn" style="padding: 6px 16px; font-size: 0.8rem; font-weight: 500;" onclick="app.jumpToQuestion()">⌖ Go to Question...</button>
+        </div>
       </div>
     </section>
 
@@ -775,7 +782,6 @@
           dynamicBody = `<div class="answer-options">`;
           options.forEach((opt) => {
             let stateClass = '';
-            // Silent Selection Mode (Does not reveal right or wrong during quiz)
             if (this.selectedOption === opt) {
               stateClass = 'selected-silent';
             }
@@ -809,11 +815,13 @@
         block.innerHTML = qHead + dynamicBody;
         container.appendChild(block);
 
-        // Manage non-quiz navigation UI visibility
+        // Toggle visibility of Quiz vs. Learning-specific navigation footprints
         if (isQuiz) {
           document.getElementById('study-navigation-footer').classList.remove('hidden');
+          document.getElementById('learning-controls').classList.add('hidden');
         } else {
           document.getElementById('study-navigation-footer').classList.add('hidden');
+          document.getElementById('learning-controls').classList.remove('hidden');
         }
 
         const total = this.activeQuestions.length;
@@ -851,7 +859,6 @@
       }
 
       nextQuestion() {
-        // Track skipped questions in Quiz Mode
         if (this.activeMode === 'quiz' && this.selectedOption === null) {
           this.quizAnsweredMap[this.currentQuestionIdx] = 'skipped';
         }
@@ -871,7 +878,6 @@
       prevQuestion() {
         if (this.currentQuestionIdx > 0) {
           this.currentQuestionIdx--;
-          // Retrieve selection state when moving backward in Quiz Mode
           if (this.activeMode === 'quiz') {
             const q = this.activeQuestions[this.currentQuestionIdx];
             this.selectedOption = this.userAnswers[q.id] || null;
@@ -888,6 +894,30 @@
           this.progress[progressKey] = this.currentQuestionIdx;
           this.pushUserSyncData();
         }
+      }
+
+      // --- Learning Mode Navigation Shortcuts ---
+      restartLesson() {
+        const progressKey = `${this.activeSubject}_${this.activeSource}_l${this.activeLesson}`;
+        if (confirm("Are you sure you want to restart this lesson from Question 1?")) {
+          this.currentQuestionIdx = 0;
+          this.progress[progressKey] = 0;
+          this.renderQuestion();
+          this.updateUserProgressCoordinate();
+        }
+      }
+
+      jumpToQuestion() {
+        const input = prompt(`Enter question number (1 to ${this.activeQuestions.length}):`, this.currentQuestionIdx + 1);
+        if (input === null) return;
+        const idx = parseInt(input, 10) - 1;
+        if (isNaN(idx) || idx < 0 || idx >= this.activeQuestions.length) {
+          alert("Please enter a valid question number.");
+          return;
+        }
+        this.currentQuestionIdx = idx;
+        this.renderQuestion();
+        this.updateUserProgressCoordinate();
       }
 
       startQuizTimer() {
@@ -1040,7 +1070,6 @@
         rows.innerHTML = '<tr><td colspan="4" style="text-align: center; color: var(--text-dim);">Loading leaderboard rankings...</td></tr>';
         
         try {
-          // Index-Free Query: Fetch entries with simple matching filters, sorting on client-side to prevent Firestore Index Exceptions
           const q = query(
             collection(db, "quiz_scores"),
             where("subject", "==", targetSub),
@@ -1095,6 +1124,8 @@
         if (activeView) activeView.classList.remove('hidden');
 
         document.getElementById('profileDropdown').classList.add('hidden');
+        document.getElementById('btn-back').classList.remove('hidden');
+        document.getElementById('btn-next').classList.remove('hidden');
 
         // Reset Quiz states when leaving Study view
         if (viewId !== 'study') {
@@ -1154,6 +1185,7 @@
         const container = document.getElementById('flashcard-container');
         container.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--text-dim);">Loading unit content...</div>';
         document.getElementById('study-navigation-footer').classList.add('hidden');
+        document.getElementById('learning-controls').classList.add('hidden');
 
         try {
           const resp = await fetch(payloadPath);
