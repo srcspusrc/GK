@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Islamic Study Hub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0B1614;
+      --bg-soft: #102018;
+      --card: #132820;
+      --card-border: #1F3B2E;
+      --text: #EAF3EC;
+      --text-dim: #8FAA9C;
+      --accent: #34D399;
+      --accent-soft: rgba(52,211,153,0.14);
+      --accent-2: #FBBF24;
+      --accent-2-soft: rgba(251,191,36,0.16);
+      --shadow: 0 10px 30px rgba(0,0,0,0.35);
+      --radius: 16px;
+    }
+    html[data-theme="light"] {
+      --bg: #FAF7EF;
+      --bg-soft: #F1ECDD;
+      --card: #FFFFFF;
+      --card-border: #E7E0CC;
+      --text: #1B2420;
+      --text-dim: #66766C;
+      --accent: #0F9D6E;
+      --accent-soft: rgba(15,157,110,0.10);
+      --accent-2: #B5790A;
+      --accent-2-soft: rgba(181,121,10,0.12);
+      --shadow: 0 10px 24px rgba(20,30,25,0.08);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: radial-gradient(circle at top, var(--bg-soft), var(--bg) 55%);
+      color: var(--text);
+      font-family: 'Inter', system-ui, sans-serif;
+      line-height: 1.7;
+      -webkit-font-smoothing: antialiased;
+      transition: background .25s ease, color .25s ease;
+      min-height: 100vh;
+    }
+
+    h1, h2, h3, h4, .sora { font-family: 'Sora', system-ui, sans-serif; }
+    .hidden { display: none !important; }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 14px clamp(16px, 4vw, 40px);
+      background: color-mix(in srgb, var(--bg) 88%, transparent);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--card-border);
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .brand .dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 12px var(--accent);
+    }
+
+    .nav-buttons {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    button, .btn {
+      border: 1px solid var(--card-border);
+      background: var(--card);
+      color: var(--text);
+      border-radius: 999px;
+      padding: 8px 18px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all .2s ease;
+    }
+    button:hover, .btn:hover { border-color: var(--accent); background: var(--bg-soft); }
+    button.primary, .btn.primary { background: var(--accent); color: #0B1614; border-color: var(--accent); }
+    button.primary:hover, .btn.primary:hover { background: color-mix(in srgb, var(--accent) 80%, white); }
+
+    main {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: clamp(20px, 5vw, 48px) clamp(16px, 5vw, 24px) 80px;
+    }
+
+    /* Cards & Layout */
+    .card {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      padding: clamp(20px, 4vw, 32px);
+      margin-bottom: 24px;
+      box-shadow: var(--shadow);
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+    @media (min-width: 600px) {
+      .grid { grid-template-columns: 1fr 1fr; }
+    }
+
+    /* Auth Forms */
+    .auth-container { max-width: 420px; margin: 40px auto; }
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; margin-bottom: 6px; font-size: 0.85rem; color: var(--text-dim); }
+    input {
+      width: 100%;
+      background: var(--bg-soft);
+      border: 1px solid var(--card-border);
+      padding: 12px 16px;
+      border-radius: 10px;
+      color: var(--text);
+      font-size: 0.95rem;
+    }
+    input:focus { outline: none; border-color: var(--accent); }
+
+    /* Flashcard Interface */
+    .flashcard-wrapper {
+      position: relative;
+      perspective: 1000px;
+    }
+    .question-block {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      padding: clamp(18px, 4vw, 26px);
+      box-shadow: var(--shadow);
+      min-height: 280px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .q-head { display: flex; align-items: flex-start; gap: 14px; }
+    .seal {
+      flex: 0 0 auto;
+      width: 38px; height: 38px;
+      border-radius: 50%;
+      border: 2px dashed var(--accent);
+      color: var(--accent);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Sora', sans-serif; font-weight: 700; font-size: 0.85rem;
+      transform: rotate(-6deg);
+    }
+    .q-title { font-weight: 700; font-size: 1.15rem; margin: 0; padding-top: 4px; }
+    
+    /* Interactive Answers */
+    .answer-options {
+      margin-top: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .opt-btn {
+      width: 100%;
+      border: 1px solid var(--card-border);
+      background: var(--bg-soft);
+      color: var(--text);
+      border-radius: 10px;
+      padding: 12px 18px;
+      font-size: 0.95rem;
+      text-align: left;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .opt-btn:hover { border-color: var(--accent); }
+    .opt-btn.correct { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+    .opt-btn.incorrect { background: rgba(239, 68, 68, 0.1); border-color: #EF4444; color: #EF4444; }
+
+    .reveal-btn {
+      align-self: center;
+      margin-top: 24px;
+    }
+
+    .answer-block {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--accent-2-soft);
+      color: var(--accent-2);
+      border-radius: 10px;
+      padding: 10px 16px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      margin-top: 20px;
+    }
+
+    /* Explanations */
+    details.explanation {
+      margin-top: 16px;
+      border-top: 1px solid var(--card-border);
+      padding-top: 14px;
+    }
+    details.explanation > summary {
+      cursor: pointer;
+      list-style: none;
+      font-weight: 600;
+      font-size: 0.88rem;
+      color: var(--text-dim);
+      display: flex; align-items: center; gap: 6px;
+      user-select: none;
+    }
+    details.explanation > summary::before {
+      content: "▸";
+      color: var(--accent);
+      transition: transform .2s ease;
+      display: inline-block;
+    }
+    details.explanation[open] > summary::before { transform: rotate(90deg); }
+
+    .explanation-body {
+      margin-top: 12px;
+      font-size: 0.95rem;
+      color: var(--text);
+      background: var(--bg-soft);
+      border-radius: 12px;
+      padding: 14px 16px;
+    }
+    .explanation-body font[color="#0000ff"],
+    .explanation-body font[color="#0000FF"] { color: var(--text) !important; }
+    .explanation-body font[color="#ff0000"],
+    .explanation-body font[color="#FF0000"] { color: var(--accent) !important; font-weight: 600; }
+
+    /* Flashcard Navigation Controls */
+    .card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 24px;
+    }
+    .progress-bar {
+      flex-grow: 1;
+      height: 6px;
+      background: var(--card-border);
+      border-radius: 99px;
+      margin: 0 16px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: var(--accent);
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+
+    /* Navigation list indicators */
+    .lesson-meta {
+      font-size: 0.8rem;
+      color: var(--text-dim);
+      display: flex;
+      justify-content: space-between;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="topbar">
+    <div class="brand" onclick="app.router.go('home')">
+      <span class="dot"></span>
+      <span class="sora" style="font-weight: 700; font-size: 1.1rem;">Study Portal</span>
+    </div>
+    <div class="nav-buttons">
+      <button onclick="app.toggleTheme()" id="themeBtn">🌙 Dark</button>
+      <span id="authHeaderState">
+        <!-- Auth status renders dynamically here -->
+      </span>
+    </div>
+  </div>
+
+  <main>
+    <!-- View: Auth Screen -->
+    <section id="view-auth" class="view hidden">
+      <div class="card auth-container">
+        <h2 id="auth-title">Sign In</h2>
+        <form id="auth-form" onsubmit="app.handleAuthSubmit(event)">
+          <div class="form-group">
+            <label for="auth-email">Email Address</label>
+            <input type="email" id="auth-email" required>
+          </div>
+          <div class="form-group">
+            <label for="auth-password">Password</label>
+            <input type="password" id="auth-password" required minlength="6">
+          </div>
+          <button type="submit" class="primary" style="width: 100%; justify-content: center; margin-top: 10px;" id="auth-btn">Sign In</button>
+        </form>
+        <p style="text-align: center; margin-top: 16px; font-size: 0.85rem; color: var(--text-dim);">
+          <span id="auth-toggle-msg">Need an account?</span>
+          <a href="#" onclick="app.toggleAuthMode()" id="auth-toggle-btn" style="color: var(--accent); text-decoration: none; font-weight: 600;">Create Account</a>
+        </p>
+      </div>
+    </section>
+
+    <!-- View: Subjects Hub -->
+    <section id="view-home" class="view hidden">
+      <div class="card" style="text-align: center;">
+        <h1 style="margin: 0 0 10px;">Sharpen Your Knowledge Base</h1>
+        <p style="color: var(--text-dim); margin: 0;">Select an available subject path to begin self-study sessions.</p>
+      </div>
+      <div class="grid" id="subject-grid">
+        <!-- Renders dynamically -->
+      </div>
+    </section>
+
+    <!-- View: Sources Hub -->
+    <section id="view-sources" class="view hidden">
+      <div class="card" style="text-align: center;">
+        <h1 id="source-subject-title">Sources</h1>
+        <p style="color: var(--text-dim); margin: 0;">Choose a question source database.</p>
+      </div>
+      <div class="grid" id="source-grid">
+        <!-- Renders dynamically -->
+      </div>
+    </section>
+
+    <!-- View: Target Modes -->
+    <section id="view-modes" class="view hidden">
+      <div class="card" style="text-align: center;">
+        <h1 id="modes-title">Training Mode</h1>
+        <p style="color: var(--text-dim); margin: 0;">Decide how you want to interact with the lesson set.</p>
+      </div>
+      <div class="grid">
+        <div class="card" style="cursor: pointer;" onclick="app.selectMode('learning')">
+          <h2>📚 Learning Mode</h2>
+          <p style="color: var(--text-dim);">Structured, self-paced active recall. Flip cards to reveal answers and comprehensive study guides.</p>
+        </div>
+        <div class="card" style="cursor: pointer;" onclick="app.selectMode('quiz')">
+          <h2>⏱️ Quiz Practice</h2>
+          <p style="color: var(--text-dim);">Simulate a testing environment with instant validation feedback per question.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- View: Lessons Selection -->
+    <section id="view-lessons" class="view hidden">
+      <div class="card" style="text-align: center;">
+        <h1 id="lessons-title">Active Lessons</h1>
+        <p style="color: var(--text-dim); margin: 0;">Each unit contains up to 200 question records.</p>
+      </div>
+      <div class="grid" id="lessons-grid">
+        <!-- Renders dynamically -->
+      </div>
+    </section>
+
+    <!-- View: Engine Active Viewport (Interactive Flashcard System) -->
+    <section id="view-study" class="view hidden">
+      <div class="flashcard-wrapper" id="flashcard-container">
+        <!-- Question block renders dynamically here -->
+      </div>
+      <div class="card-footer">
+        <button onclick="app.prevQuestion()">Back</button>
+        <div class="progress-bar">
+          <div class="progress-fill" id="study-progress-fill"></div>
+        </div>
+        <button class="primary" onclick="app.nextQuestion()">Next</button>
+      </div>
+      <div style="text-align: center; margin-top: 14px; font-size: 0.85rem; color: var(--text-dim);" id="q-counter">
+        Question 0 / 0
+      </div>
+    </section>
+  </main>
+
+  <!-- Firebase Scripts v10 via CDN -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
+
+    // Your verified web app's Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyDf4NNk7wkAdHqV08n0eHo8HuhFC1aKwNY",
+      authDomain: "gkprepplus.firebaseapp.com",
+      projectId: "gkprepplus",
+      storageBucket: "gkprepplus.firebasestorage.app",
+      messagingSenderId: "141562013178",
+      appId: "1:141562013178:web:a1835b18998a5fb359b043",
+      measurementId: "G-YL7BZHFR37"
+    };
+
+    // Initialize Firebase Services
+    const fbApp = initializeApp(firebaseConfig);
+    const auth = getAuth(fbApp);
+    const db = getFirestore(fbApp);
+    const analytics = getAnalytics(fbApp);
+
+    // --- Static System Data Directory Map ---
+    const metadata = {
+      subjects: {
+        "islamic_studies": {
+          title: "Islamic Studies",
+          description: "Core concepts, Quranic exegesis, historical biographies, and jurisprudence.",
+          sources: ["testpoint"]
+        }
+      },
+      sources: {
+        "testpoint": {
+          title: "Testpoint Database",
+          description: "Historical academic datasets verified for high-percentage examination recall.",
+          total_lessons: 11 // Maps to chunks 1 through 11
+        }
+      }
+    };
+
+    class ApplicationState {
+      constructor() {
+        this.user = null;
+        this.progress = {}; // Format: { "subject_source_lesson": lastIndexSeen }
+        this.currentView = 'home';
+        this.authMode = 'login'; // 'login' or 'register'
+        
+        // Active Selection State
+        this.activeSubject = null;
+        this.activeSource = null;
+        this.activeMode = null;
+        this.activeLesson = null;
+        this.activeQuestions = [];
+        this.currentQuestionIdx = 0;
+        this.selectedOption = null; // Quiz tracking variable
+        this.isRevealed = false;   // Flashcard tracking variable
+
+        this.init();
+      }
+
+      init() {
+        // Wire up Firebase Auth Status State Machine
+        onAuthStateChanged(auth, async (user) => {
+          if (user) {
+            this.user = user;
+            await this.pullUserSyncData();
+            this.updateHeaderUI();
+            this.router.go('home');
+          } else {
+            this.user = null;
+            this.progress = {};
+            this.updateHeaderUI();
+            this.router.go('auth');
+          }
+        });
+      }
+
+      async pullUserSyncData() {
+        if (!this.user) return;
+        try {
+          const docRef = doc(db, "users", this.user.uid);
+          const docSnap = await getDoc(docRef);
+          if (docSnap.exists()) {
+            this.progress = docSnap.data().progress || {};
+          }
+        } catch (e) {
+          console.error("Failed pulling Firestore record:", e);
+        }
+      }
+
+      async pushUserSyncData() {
+        if (!this.user) return;
+        try {
+          const docRef = doc(db, "users", this.user.uid);
+          await setDoc(docRef, { progress: this.progress }, { merge: true });
+        } catch (e) {
+          console.error("Failed pushing progress coordinate:", e);
+        }
+      }
+
+      toggleTheme() {
+        const root = document.documentElement;
+        const targetTheme = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+        root.setAttribute('data-theme', targetTheme);
+        document.getElementById('themeBtn').textContent = targetTheme === 'dark' ? '🌙 Dark' : '☀️ Light';
+        localStorage.setItem('portal-theme', targetTheme);
+      }
+
+      updateHeaderUI() {
+        const container = document.getElementById('authHeaderState');
+        if (this.user) {
+          container.innerHTML = `
+            <span style="font-size: 0.85rem; color: var(--text-dim); margin-right: 8px;">${this.user.email}</span>
+            <button onclick="app.signOut()">Logout</button>
+          `;
+        } else {
+          container.innerHTML = `<button class="primary" onclick="app.router.go('auth')">Login</button>`;
+        }
+      }
+
+      toggleAuthMode() {
+        this.authMode = this.authMode === 'login' ? 'register' : 'login';
+        const title = document.getElementById('auth-title');
+        const btn = document.getElementById('auth-btn');
+        const toggleMsg = document.getElementById('auth-toggle-msg');
+        const toggleBtn = document.getElementById('auth-toggle-btn');
+
+        if (this.authMode === 'login') {
+          title.textContent = "Sign In";
+          btn.textContent = "Sign In";
+          toggleMsg.textContent = "Need an account?";
+          toggleBtn.textContent = "Create Account";
+        } else {
+          title.textContent = "Create Account";
+          btn.textContent = "Sign Up";
+          toggleMsg.textContent = "Already have an account?";
+          toggleBtn.textContent = "Sign In";
+        }
+      }
+
+      async handleAuthSubmit(event) {
+        event.preventDefault();
+        const email = document.getElementById('auth-email').value;
+        const password = document.getElementById('auth-password').value;
+
+        try {
+          if (this.authMode === 'login') {
+            await signInWithEmailAndPassword(auth, email, password);
+          } else {
+            await createUserWithEmailAndPassword(auth, email, password);
+          }
+        } catch (err) {
+          alert(`Authentication Error: ${err.message}`);
+        }
+      }
+
+      async signOut() {
+        await signOut(auth);
+      }
+
+      selectSubject(subKey) {
+        this.activeSubject = subKey;
+        this.router.go('sources');
+      }
+
+      selectSource(srcKey) {
+        this.activeSource = srcKey;
+        this.router.go('modes');
+      }
+
+      selectMode(mode) {
+        this.activeMode = mode;
+        this.router.go('lessons');
+      }
+
+      async selectLesson(lessonIndex) {
+        this.activeLesson = lessonIndex;
+        
+        // Dynamic payload fetch from relative data tree matching parse output pathing
+        const payloadPath = `./data/${this.activeSubject}/${this.activeSource}/lesson_${lessonIndex}.json`;
+        try {
+          const resp = await fetch(payloadPath);
+          if (!resp.ok) throw new Error("File fetch operation returned a bad status code");
+          const payload = await resp.json();
+          this.activeQuestions = payload.questions;
+          
+          // Pull saved index position coordinates
+          const progressKey = `${this.activeSubject}_${this.activeSource}_l${lessonIndex}`;
+          this.currentQuestionIdx = this.progress[progressKey] || 0;
+          this.isRevealed = false;
+          this.selectedOption = null;
+          
+          this.router.go('study');
+        } catch (e) {
+          alert("Error loading lesson file. Ensure files have been parsed using the python script and placed under data/ folder.");
+          console.error(e);
+        }
+      }
+
+      // --- Interface Rendering Engine ---
+      renderHome() {
+        const grid = document.getElementById('subject-grid');
+        grid.innerHTML = '';
+        Object.entries(metadata.subjects).forEach(([key, info]) => {
+          const el = document.createElement('div');
+          el.className = 'card';
+          el.style.cursor = 'pointer';
+          el.innerHTML = `<h2>${info.title}</h2><p style="color:var(--text-dim); margin:0;">${info.description}</p>`;
+          el.onclick = () => this.selectSubject(key);
+          grid.appendChild(el);
+        });
+      }
+
+      renderSources() {
+        const title = document.getElementById('source-subject-title');
+        title.textContent = metadata.subjects[this.activeSubject].title;
+        const grid = document.getElementById('source-grid');
+        grid.innerHTML = '';
+        
+        metadata.subjects[this.activeSubject].sources.forEach(srcKey => {
+          const info = metadata.sources[srcKey];
+          const el = document.createElement('div');
+          el.className = 'card';
+          el.style.cursor = 'pointer';
+          el.innerHTML = `<h2>${info.title}</h2><p style="color:var(--text-dim); margin:0;">${info.description}</p>`;
+          el.onclick = () => this.selectSource(srcKey);
+          grid.appendChild(el);
+        });
+      }
+
+      renderLessons() {
+        const grid = document.getElementById('lessons-grid');
+        grid.innerHTML = '';
+        const info = metadata.sources[this.activeSource];
+        
+        for (let i = 1; i <= info.total_lessons; i++) {
+          const progressKey = `${this.activeSubject}_${this.activeSource}_l${i}`;
+          const currentProgress = this.progress[progressKey] || 0;
+          const percentage = Math.round((currentProgress / 200) * 100);
+          
+          const el = document.createElement('div');
+          el.className = 'card';
+          el.style.cursor = 'pointer';
+          el.innerHTML = `
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <h2 style="margin:0;">Lesson ${i}</h2>
+              <span class="btn" style="padding: 4px 10px; font-size:0.75rem;">${percentage}% Done</span>
+            </div>
+            <p style="color:var(--text-dim); font-size:0.85rem; margin: 8px 0 0;">Questions ${(i-1)*200 + 1} - ${i*200}</p>
+          `;
+          el.onclick = () => this.selectLesson(i);
+          grid.appendChild(el);
+        }
+      }
+
+      renderQuestion() {
+        const container = document.getElementById('flashcard-container');
+        container.innerHTML = '';
+        if (this.activeQuestions.length === 0) return;
+
+        const q = this.activeQuestions[this.currentQuestionIdx];
+        const isQuiz = this.activeMode === 'quiz';
+
+        // Interface template
+        const block = document.createElement('div');
+        block.className = 'question-block';
+        
+        const qHead = `
+          <div class="q-head">
+            <div class="seal">${q.id || (this.currentQuestionIdx + 1)}</div>
+            <p class="q-title">${q.title}</p>
+          </div>
+        `;
+        
+        let dynamicBody = '';
+        if (isQuiz) {
+          // Generates options for validation using a simple deterministic pool algorithm
+          const options = this.getOrCreateOptions(q);
+          dynamicBody = `<div class="answer-options">`;
+          options.forEach((opt) => {
+            let stateClass = '';
+            if (this.selectedOption !== null) {
+              if (opt === q.answer) stateClass = 'correct';
+              else if (opt === this.selectedOption) stateClass = 'incorrect';
+            }
+            dynamicBody += `
+              <button class="opt-btn ${stateClass}" onclick="app.submitQuizAnswer('${opt.replace(/'/g, "\\'")}')" ${this.selectedOption !== null ? 'disabled' : ''}>
+                ${opt}
+              </button>
+            `;
+          });
+          dynamicBody += `</div>`;
+          
+          if (this.selectedOption !== null && q.explanation) {
+            dynamicBody += `
+              <details class="explanation" open>
+                <summary>Show explanation</summary>
+                <div class="explanation-body">${q.explanation}</div>
+              </details>
+            `;
+          }
+        } else {
+          // Learning View Renders Toggle reveal logic
+          if (this.isRevealed) {
+            dynamicBody = `
+              <div class="answer-block">Correct Answer: ${q.answer}</div>
+              ${q.explanation ? `
+                <details class="explanation" open>
+                  <summary>Show explanation</summary>
+                  <div class="explanation-body">${q.explanation}</div>
+                </details>
+              ` : ''}
+            `;
+          } else {
+            dynamicBody = `
+              <button class="reveal-btn primary" onclick="app.revealFlashcard()">Reveal Answer</button>
+            `;
+          }
+        }
+
+        block.innerHTML = qHead + dynamicBody;
+        container.appendChild(block);
+
+        // Progress elements sync
+        const total = this.activeQuestions.length;
+        const percentage = total > 0 ? ((this.currentQuestionIdx + 1) / total) * 100 : 0;
+        document.getElementById('study-progress-fill').style.width = `${percentage}%`;
+        document.getElementById('q-counter').textContent = `Question ${this.currentQuestionIdx + 1} of ${total}`;
+      }
+
+      getOrCreateOptions(q) {
+        if (q.cached_options) return q.cached_options;
+        const set = new Set([q.answer]);
+        // Simple fallback alternatives for dynamically built options
+        const distractors = ["None of these", "World power dependence", "Compromise", "No action needed"];
+        let dIdx = 0;
+        while (set.size < 4 && dIdx < distractors.length) {
+          set.add(distractors[dIdx]);
+          dIdx++;
+        }
+        q.cached_options = Array.from(set).sort(() => Math.random() - 0.5);
+        return q.cached_options;
+      }
+
+      submitQuizAnswer(answer) {
+        this.selectedOption = answer;
+        this.renderQuestion();
+        this.updateUserProgressCoordinate();
+      }
+
+      revealFlashcard() {
+        this.isRevealed = true;
+        this.renderQuestion();
+        this.updateUserProgressCoordinate();
+      }
+
+      nextQuestion() {
+        if (this.currentQuestionIdx < this.activeQuestions.length - 1) {
+          this.currentQuestionIdx++;
+          this.isRevealed = false;
+          this.selectedOption = null;
+          this.renderQuestion();
+          this.updateUserProgressCoordinate();
+        }
+      }
+
+      prevQuestion() {
+        if (this.currentQuestionIdx > 0) {
+          this.currentQuestionIdx--;
+          this.isRevealed = false;
+          this.selectedOption = null;
+          this.renderQuestion();
+          this.updateUserProgressCoordinate();
+        }
+      }
+
+      updateUserProgressCoordinate() {
+        const progressKey = `${this.activeSubject}_${this.activeSource}_l${this.activeLesson}`;
+        // Preserve progress using maximum value
+        if (this.currentQuestionIdx > (this.progress[progressKey] || 0)) {
+          this.progress[progressKey] = this.currentQuestionIdx;
+          this.pushUserSyncData();
+        }
+      }
+    }
+
+    // --- Dynamic Routing Component Engine ---
+    const routeEngine = {
+      go(viewId) {
+        document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
+        const activeView = document.getElementById(`view-${viewId}`);
+        if (activeView) activeView.classList.remove('hidden');
+
+        // Render Hook Methods
+        if (viewId === 'home') app.renderHome();
+        if (viewId === 'sources') app.renderSources();
+        if (viewId === 'lessons') app.renderLessons();
+        if (viewId === 'study') app.renderQuestion();
+      }
+    };
+
+    // Initialize Global App Context Object
+    const app = new ApplicationState();
+    app.router = routeEngine;
+    window.app = app;
+
+    // Load user theme choices
+    (function() {
+      const savedTheme = localStorage.getItem('portal-theme') || 'dark';
+      document.documentElement.setAttribute('data-theme', savedTheme);
+      document.getElementById('themeBtn').textContent = savedTheme === 'dark' ? '🌙 Dark' : '☀️ Light';
+    })();
+  </script>
+</body>
+</html>
