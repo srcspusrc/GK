@@ -78,11 +78,42 @@
       box-shadow: 0 0 10px var(--accent);
     }
 
-    .nav-buttons {
-      display: flex;
-      gap: 10px;
-      align-items: center;
+    /* Menu Dropdown */
+    .profile-menu {
+      position: relative;
+      display: inline-block;
     }
+    .dropdown-content {
+      position: absolute;
+      right: 0;
+      top: 100%;
+      margin-top: 8px;
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      min-width: 200px;
+      padding: 8px 0;
+      z-index: 30;
+    }
+    .dropdown-item {
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text);
+      font-size: 0.88rem;
+      font-weight: 500;
+      cursor: pointer;
+      width: 100%;
+      border: none;
+      background: transparent;
+      text-align: left;
+    }
+    .dropdown-item:hover {
+      background: var(--bg-soft);
+    }
+
     button, .btn {
       border: 1px solid var(--card-border);
       background: var(--card);
@@ -107,7 +138,6 @@
       padding: clamp(20px, 5vw, 40px) 16px 80px;
     }
 
-    /* Cards */
     .card {
       background: var(--card);
       border: 1px solid var(--card-border);
@@ -115,15 +145,22 @@
       padding: 24px;
       margin-bottom: 16px;
       box-shadow: var(--shadow);
-      transition: border-color 0.15s ease;
+    }
+    .card.interactive {
+      cursor: pointer;
+      transition: border-color 0.15s ease, transform 0.15s ease;
     }
     .card.interactive:hover {
       border-color: var(--accent);
+      transform: translateY(-2px);
     }
     .grid {
       display: grid;
       grid-template-columns: 1fr;
       gap: 14px;
+    }
+    @media (min-width: 600px) {
+      .grid-2 { grid-template-columns: 1fr 1fr; }
     }
 
     /* Auth Views */
@@ -141,35 +178,41 @@
     }
     input:focus { outline: none; border-color: var(--accent); }
 
-    /* Flashcard Styles */
+    /* Flashcard Layout */
     .question-block {
       background: var(--card);
       border: 1px solid var(--card-border);
       border-radius: var(--radius);
       padding: 24px;
       box-shadow: var(--shadow);
-      min-height: 240px;
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
-      user-select: none;
+      gap: 16px;
     }
     .q-head { display: flex; align-items: flex-start; gap: 12px; }
     .seal {
       flex: 0 0 auto;
-      width: 34px; height: 38px;
+      width: 34px; height: 34px;
       border-radius: 50%;
       border: 2px dashed var(--accent);
       color: var(--accent);
       display: flex; align-items: center; justify-content: center;
       font-family: 'Sora', sans-serif; font-weight: 700; font-size: 0.85rem;
-      transform: rotate(-6deg);
     }
-    .q-title { font-weight: 700; font-size: 1.1rem; margin: 0; padding-top: 4px; line-height: 1.5; }
+    .q-title { font-weight: 700; font-size: 1.1rem; margin: 0; line-height: 1.5; }
     
-    /* Quiz Actions */
+    .answer-block {
+      background: var(--accent-soft);
+      color: var(--accent);
+      border-radius: 8px;
+      padding: 12px 16px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      border-left: 4px solid var(--accent);
+    }
+
+    /* Option Lists */
     .answer-options {
-      margin-top: 20px;
       display: flex;
       flex-direction: column;
       gap: 8px;
@@ -180,7 +223,7 @@
       background: var(--bg-soft);
       color: var(--text);
       border-radius: 8px;
-      padding: 12px 16px;
+      padding: 14px 16px;
       font-size: 0.95rem;
       text-align: left;
       cursor: pointer;
@@ -190,22 +233,8 @@
     .opt-btn.correct { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); font-weight: 600; }
     .opt-btn.incorrect { background: rgba(239, 68, 68, 0.08); border-color: #EF4444; color: #EF4444; }
 
-    .answer-block {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: var(--accent-soft);
-      color: var(--accent);
-      border-radius: 8px;
-      padding: 10px 14px;
-      font-weight: 600;
-      font-size: 0.95rem;
-      margin-top: 20px;
-    }
-
-    /* Details and Explanations */
+    /* Expandable Explanations */
     details.explanation {
-      margin-top: 16px;
       border-top: 1px solid var(--card-border);
       padding-top: 14px;
     }
@@ -232,12 +261,12 @@
       color: var(--text);
       background: var(--bg-soft);
       border-radius: 8px;
-      padding: 12px 14px;
+      padding: 14px;
     }
     .explanation-body p { margin: 6px 0; }
     .explanation-body ul { margin: 6px 0; padding-left: 20px; }
 
-    /* Footer Pagination */
+    /* Nav Pagination */
     .card-footer {
       display: flex;
       justify-content: space-between;
@@ -258,6 +287,23 @@
       width: 0%;
       transition: width 0.2s ease;
     }
+
+    /* Leaderboard Styles */
+    .leaderboard-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+    }
+    .leaderboard-table th, .leaderboard-table td {
+      padding: 10px 12px;
+      text-align: left;
+      border-bottom: 1px solid var(--card-border);
+      font-size: 0.9rem;
+    }
+    .leaderboard-table th {
+      color: var(--text-dim);
+      font-weight: 600;
+    }
   </style>
 </head>
 <body>
@@ -268,8 +314,15 @@
       <span class="sora" style="font-weight: 700; font-size: 1.1rem;">Study Portal</span>
     </div>
     <div class="nav-buttons">
-      <button onclick="app.toggleTheme()" id="themeBtn">☀️ Light</button>
-      <span id="authHeaderState"></span>
+      <div class="profile-menu">
+        <button id="profileDropdownBtn" onclick="app.toggleDropdown()">Menu ▾</button>
+        <div id="profileDropdown" class="dropdown-content hidden">
+          <button class="dropdown-item" onclick="app.toggleTheme()">🌓 Toggle Theme</button>
+          <div style="border-top: 1px solid var(--card-border); margin: 4px 0;"></div>
+          <span id="userEmailDisplay" style="padding: 6px 16px; display: block; font-size: 0.75rem; color: var(--text-dim);"></span>
+          <button class="dropdown-item" style="color: #EF4444;" onclick="app.signOut()">Logout</button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -320,14 +373,14 @@
         <h1 style="margin: 0 0 6px; font-size: 1.6rem;">Study Method</h1>
         <p style="color: var(--text-dim); margin: 0; font-size: 0.95rem;">Select your interaction preference.</p>
       </div>
-      <div class="grid">
-        <div class="card interactive" style="cursor: pointer;" onclick="app.selectMode('learning')">
+      <div class="grid grid-2">
+        <div class="card interactive" onclick="app.selectMode('learning')">
           <h2 style="margin: 0 0 8px; font-size: 1.25rem;">📚 Learning Mode</h2>
           <p style="color: var(--text-dim); margin: 0; font-size: 0.9rem;">Review questions with answers shown immediately alongside expandable study notes.</p>
         </div>
-        <div class="card interactive" style="cursor: pointer;" onclick="app.selectMode('quiz')">
+        <div class="card interactive" onclick="app.selectMode('quiz')">
           <h2 style="margin: 0 0 8px; font-size: 1.25rem;">⏱️ Quiz Practice</h2>
-          <p style="color: var(--text-dim); margin: 0; font-size: 0.9rem;">Test yourself in a clean practice environment with instant correct/incorrect feedback.</p>
+          <p style="color: var(--text-dim); margin: 0; font-size: 0.9rem;">Test yourself with a 100-question deep-dive, 30-minute timer, and leaderboard rankings.</p>
         </div>
       </div>
     </section>
@@ -343,15 +396,35 @@
 
     <!-- View: Active Study Viewport (Flashcard Engine) -->
     <section id="view-study" class="view hidden">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+        <span id="quiz-timer" style="font-weight: 700; color: var(--accent-2); font-size: 1.1rem;"></span>
+        <span id="study-header-progress" style="font-size: 0.85rem; color: var(--text-dim);"></span>
+      </div>
       <div class="flashcard-wrapper" id="flashcard-container"></div>
       <div class="card-footer">
-        <button onclick="app.prevQuestion()">Back</button>
+        <button id="btn-back" onclick="app.prevQuestion()">Back</button>
         <div class="progress-bar">
           <div class="progress-fill" id="study-progress-fill"></div>
         </div>
-        <button class="primary" onclick="app.nextQuestion()">Next</button>
+        <button id="btn-next" class="primary" onclick="app.nextQuestion()">Next</button>
       </div>
       <div style="text-align: center; margin-top: 14px; font-size: 0.85rem; color: var(--text-dim);" id="q-counter"></div>
+      
+      <!-- Leaderboard Widget inside Study View when Quiz selected -->
+      <div id="quiz-leaderboard-container" class="card hidden" style="margin-top: 24px;">
+        <h3 style="margin: 0 0 12px;">Leaderboard</h3>
+        <table class="leaderboard-table">
+          <thead>
+            <tr>
+              <th>Rank</th>
+              <th>User</th>
+              <th>Score</th>
+              <th>Time Left</th>
+            </tr>
+          </thead>
+          <tbody id="leaderboard-rows"></tbody>
+        </table>
+      </div>
     </section>
   </main>
 
@@ -359,7 +432,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-    import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, setDoc, collection, query, where, getDocs, limit, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
     import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
 
     const firebaseConfig = {
@@ -377,7 +450,6 @@
     const db = getFirestore(fbApp);
     const analytics = getAnalytics(fbApp);
 
-    // Subject/Source/Lesson counts
     const metadata = {
       subjects: {
         "islamic_studies": {
@@ -420,7 +492,12 @@
         this.currentQuestionIdx = 0;
         this.selectedOption = null;
 
-        // Gestures tracking variables
+        // Quiz specifics
+        this.quizTimer = null;
+        this.quizTimeRemaining = 1800; // 30 minutes in seconds
+        this.quizScores = {}; // Key: Question index, Value: true/false
+
+        // Gestures
         this.touchStartX = 0;
         this.touchStartY = 0;
 
@@ -447,7 +524,6 @@
 
       setupSwipeGestures() {
         const container = document.getElementById('flashcard-container');
-        
         container.addEventListener('touchstart', (e) => {
           this.touchStartX = e.touches[0].clientX;
           this.touchStartY = e.touches[0].clientY;
@@ -456,11 +532,9 @@
         container.addEventListener('touchend', (e) => {
           const endX = e.changedTouches[0].clientX;
           const endY = e.changedTouches[0].clientY;
-          
           const deltaX = endX - this.touchStartX;
           const deltaY = endY - this.touchStartY;
 
-          // Check if horizontal movement is greater than vertical movement
           if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 60) {
             if (deltaX > 0) {
               this.prevQuestion();
@@ -502,15 +576,13 @@
         localStorage.setItem('portal-theme', targetTheme);
       }
 
+      toggleDropdown() {
+        document.getElementById('profileDropdown').classList.toggle('hidden');
+      }
+
       updateHeaderUI() {
-        const container = document.getElementById('authHeaderState');
         if (this.user) {
-          container.innerHTML = `
-            <span style="font-size: 0.85rem; color: var(--text-dim); margin-right: 8px;">${this.user.email}</span>
-            <button onclick="app.signOut()">Logout</button>
-          `;
-        } else {
-          container.innerHTML = `<button class="primary" onclick="app.router.go('auth')">Login</button>`;
+          document.getElementById('userEmailDisplay').textContent = this.user.email;
         }
       }
 
@@ -576,16 +648,157 @@
           const resp = await fetch(payloadPath);
           if (!resp.ok) throw new Error("Check connection or missing path file.");
           const payload = await resp.json();
-          this.activeQuestions = payload.questions;
+          const baseQuestions = payload.questions;
+
+          if (this.activeMode === 'quiz') {
+            this.buildQuizSession(baseQuestions);
+          } else {
+            this.activeQuestions = baseQuestions;
+            const progressKey = `${this.activeSubject}_${this.activeSource}_l${lessonIndex}`;
+            this.currentQuestionIdx = this.progress[progressKey] || 0;
+          }
           
-          const progressKey = `${this.activeSubject}_${this.activeSource}_l${lessonIndex}`;
-          this.currentQuestionIdx = this.progress[progressKey] || 0;
           this.selectedOption = null;
-          
           this.router.go('study');
         } catch (e) {
-          alert("Error loading lesson dataset. Verify files have been uploaded correctly to your repository path.");
+          alert("Error loading lesson dataset. Verify files are uploaded correctly.");
           console.error(e);
+        }
+      }
+
+      buildQuizSession(baseQuestions) {
+        this.quizScores = {};
+        clearInterval(this.quizTimer);
+        this.quizTimeRemaining = 1800;
+        this.startQuizTimer();
+
+        // Sample 60 original questions
+        const shuffled = [...baseQuestions].sort(() => Math.random() - 0.5);
+        const originalSet = shuffled.slice(0, 60);
+
+        // Generate 40 questions from explanations
+        const explanationSet = [];
+        const poolForExplanations = shuffled.slice(60);
+        for (let i = 0; i < 40 && i < poolForExplanations.length; i++) {
+          explanationSet.push(this.generateExplanationQuestion(poolForExplanations[i], baseQuestions));
+        }
+
+        this.activeQuestions = [...originalSet, ...explanationSet].sort(() => Math.random() - 0.5);
+        this.currentQuestionIdx = 0;
+      }
+
+      generateExplanationQuestion(q, pool) {
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = q.explanation;
+        const items = Array.from(tempDiv.querySelectorAll('li')).map(li => li.textContent.trim());
+
+        let targetFact = q.answer;
+        let queryTitle = `Based on the historical explanations of: "${q.title}", which of these details is correct?`;
+
+        // Check if there is an analytical point with key value syntax (e.g. Location: Attock)
+        const matchedLine = items.find(item => item.includes(':') && item.length < 100);
+        if (matchedLine) {
+          const splitPt = matchedLine.split(':');
+          queryTitle = `Regarding the topic of "${q.title}", what is the ${splitPt[0].trim().toLowerCase()}?`;
+          targetFact = splitPt[1].trim().replace(/\.$/, '');
+        } else if (items.length > 0) {
+          targetFact = items[0];
+        }
+
+        // Generate robust options
+        const options = new Set([targetFact]);
+        while (options.size < 4) {
+          const randomEntry = pool[Math.floor(Math.random() * pool.length)];
+          if (randomEntry.answer !== q.answer) {
+            options.add(randomEntry.answer);
+          }
+        }
+
+        return {
+          id: "exp_" + q.id,
+          title: queryTitle,
+          answer: targetFact,
+          options: Array.from(options).sort(() => Math.random() - 0.5),
+          explanation: q.explanation,
+          isExplanationDerived: true
+        };
+      }
+
+      startQuizTimer() {
+        const display = document.getElementById('quiz-timer');
+        this.quizTimer = setInterval(() => {
+          this.quizTimeRemaining--;
+          const minutes = Math.floor(this.quizTimeRemaining / 60);
+          const seconds = this.quizTimeRemaining % 60;
+          display.textContent = `⏱️ ${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+          if (this.quizTimeRemaining <= 0) {
+            clearInterval(this.quizTimer);
+            this.finishQuiz();
+          }
+        }, 1000);
+      }
+
+      async finishQuiz() {
+        clearInterval(this.quizTimer);
+        let correctCount = 0;
+        Object.values(this.quizScores).forEach(isCorrect => {
+          if (isCorrect) correctCount++;
+        });
+
+        alert(`Quiz Finished! Your Score: ${correctCount}/100`);
+
+        // Sync Score to Firestore
+        if (this.user) {
+          try {
+            const scoreId = `${this.user.uid}_${this.activeSubject}_${this.activeSource}_l${this.activeLesson}`;
+            const timeLeftFormatted = `${Math.floor(this.quizTimeRemaining / 60)}m ${this.quizTimeRemaining % 60}s`;
+            await setDoc(doc(db, "quiz_scores", scoreId), {
+              userId: this.user.uid,
+              userEmail: this.user.email,
+              subject: this.activeSubject,
+              source: this.activeSource,
+              lesson: this.activeLesson,
+              score: correctCount,
+              timeLeft: timeLeftFormatted,
+              secondsLeft: this.quizTimeRemaining,
+              timestamp: Date.now()
+            });
+            await this.loadLeaderboard();
+          } catch (e) {
+            console.error("Error logging score:", e);
+          }
+        }
+      }
+
+      async loadLeaderboard() {
+        const rows = document.getElementById('leaderboard-rows');
+        rows.innerHTML = '';
+        try {
+          const q = query(
+            collection(db, "quiz_scores"),
+            where("subject", "==", this.activeSubject),
+            where("source", "==", this.activeSource),
+            where("lesson", "==", this.activeLesson),
+            orderBy("score", "desc"),
+            orderBy("secondsLeft", "desc"),
+            limit(10)
+          );
+          const querySnapshot = await getDocs(q);
+          let rank = 1;
+          querySnapshot.forEach((doc) => {
+            const data = doc.data();
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+              <td>${rank++}</td>
+              <td>${data.userEmail.split('@')[0]}</td>
+              <td><strong>${data.score}/100</strong></td>
+              <td>${data.timeLeft}</td>
+            `;
+            rows.appendChild(tr);
+          });
+        } catch (e) {
+          console.error("Error loading leaderboard:", e);
         }
       }
 
@@ -595,7 +808,6 @@
         Object.entries(metadata.subjects).forEach(([key, info]) => {
           const el = document.createElement('div');
           el.className = 'card interactive';
-          el.style.cursor = 'pointer';
           el.innerHTML = `
             <div style="display: flex; gap: 12px; align-items: start;">
               <span style="font-size: 1.8rem;">${info.icon}</span>
@@ -620,7 +832,6 @@
         Object.entries(sources).forEach(([srcKey, info]) => {
           const el = document.createElement('div');
           el.className = 'card interactive';
-          el.style.cursor = 'pointer';
           el.innerHTML = `
             <h2 style="margin: 0 0 4px; font-size: 1.2rem;">${info.title}</h2>
             <p style="color: var(--text-dim); margin: 0; font-size: 0.88rem;">Access verified mock assessments.</p>
@@ -642,7 +853,6 @@
           
           const el = document.createElement('div');
           el.className = 'card interactive';
-          el.style.cursor = 'pointer';
           el.innerHTML = `
             <div style="display:flex; justify-content:space-between; align-items:center;">
               <h2 style="margin:0; font-size: 1.15rem;">Lesson ${i}</h2>
@@ -668,14 +878,14 @@
         
         const qHead = `
           <div class="q-head">
-            <div class="seal">${q.id || (this.currentQuestionIdx + 1)}</div>
+            <div class="seal">${q.isExplanationDerived ? "💡" : (this.currentQuestionIdx + 1)}</div>
             <p class="q-title">${q.title}</p>
           </div>
         `;
         
         let dynamicBody = '';
         if (isQuiz) {
-          const options = this.getOrCreateOptions(q);
+          const options = q.options || this.getOrCreateOptions(q);
           dynamicBody = `<div class="answer-options">`;
           options.forEach((opt) => {
             let stateClass = '';
@@ -693,18 +903,18 @@
           
           if (this.selectedOption !== null && q.explanation) {
             dynamicBody += `
-              <details class="explanation" open>
+              <details class="explanation">
                 <summary>Show explanation</summary>
                 <div class="explanation-body">${q.explanation}</div>
               </details>
             `;
           }
         } else {
-          // Learning Mode Viewport: Answer is visible instantly, no reveal button
+          // Learning Viewport: Answer is visible instantly, and explanation is collapsed
           dynamicBody = `
             <div class="answer-block">Correct Answer: ${q.answer}</div>
             ${q.explanation ? `
-              <details class="explanation" open>
+              <details class="explanation">
                 <summary>Show explanation</summary>
                 <div class="explanation-body">${q.explanation}</div>
               </details>
@@ -736,8 +946,13 @@
 
       submitQuizAnswer(answer) {
         this.selectedOption = answer;
+        const q = this.activeQuestions[this.currentQuestionIdx];
+        this.quizScores[this.currentQuestionIdx] = (answer === q.answer);
         this.renderQuestion();
-        this.updateUserProgressCoordinate();
+
+        if (this.currentQuestionIdx === this.activeQuestions.length - 1) {
+          this.finishQuiz();
+        }
       }
 
       nextQuestion() {
@@ -745,7 +960,9 @@
           this.currentQuestionIdx++;
           this.selectedOption = null;
           this.renderQuestion();
-          this.updateUserProgressCoordinate();
+          if (this.activeMode !== 'quiz') {
+            this.updateUserProgressCoordinate();
+          }
         }
       }
 
@@ -754,7 +971,9 @@
           this.currentQuestionIdx--;
           this.selectedOption = null;
           this.renderQuestion();
-          this.updateUserProgressCoordinate();
+          if (this.activeMode !== 'quiz') {
+            this.updateUserProgressCoordinate();
+          }
         }
       }
 
@@ -773,10 +992,25 @@
         const activeView = document.getElementById(`view-${viewId}`);
         if (activeView) activeView.classList.remove('hidden');
 
+        document.getElementById('profileDropdown').classList.add('hidden');
+
+        // Reset Quiz metrics when leaving Study Screen
+        if (viewId !== 'study') {
+          clearInterval(app.quizTimer);
+          document.getElementById('quiz-timer').textContent = '';
+          document.getElementById('quiz-leaderboard-container').classList.add('hidden');
+        }
+
         if (viewId === 'home') app.renderHome();
         if (viewId === 'sources') app.renderSources();
         if (viewId === 'lessons') app.renderLessons();
-        if (viewId === 'study') app.renderQuestion();
+        if (viewId === 'study') {
+          app.renderQuestion();
+          if (app.activeMode === 'quiz') {
+            document.getElementById('quiz-leaderboard-container').classList.remove('hidden');
+            app.loadLeaderboard();
+          }
+        }
       }
     };
 
