@@ -231,8 +231,7 @@
       transition: all 0.15s ease;
     }
     .opt-btn:hover { border-color: var(--accent); }
-    .opt-btn.correct { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); font-weight: 600; }
-    .opt-btn.incorrect { background: rgba(239, 68, 68, 0.08); border-color: #EF4444; color: #EF4444; }
+    .opt-btn.selected-silent { border-color: var(--accent-2); background: var(--accent-2-soft); font-weight: 600; }
 
     /* Expandable Explanations */
     details.explanation {
@@ -306,6 +305,24 @@
       color: var(--text-dim);
       font-weight: 600;
     }
+
+    /* Quiz Review Styles */
+    .review-item {
+      border-bottom: 1px solid var(--card-border);
+      padding: 16px 0;
+    }
+    .review-item:last-child {
+      border-bottom: none;
+    }
+    .review-label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+      display: inline-block;
+    }
+    .review-correct { color: var(--accent); }
+    .review-wrong { color: #EF4444; }
   </style>
 </head>
 <body>
@@ -403,15 +420,17 @@
         <span id="quiz-timer" style="font-weight: 700; color: var(--accent-2); font-size: 1.1rem;"></span>
         <span id="study-header-progress" style="font-size: 0.85rem; color: var(--text-dim);"></span>
       </div>
-      <div class="flashcard-wrapper" id="flashcard-container"></div>
-      <div class="card-footer">
-        <button id="btn-back" onclick="app.prevQuestion()">Back</button>
-        <div class="progress-bar">
-          <div class="progress-fill" id="study-progress-fill"></div>
+      <div id="flashcard-container-wrapper">
+        <div class="flashcard-wrapper" id="flashcard-container"></div>
+        <div class="card-footer" id="study-navigation-footer">
+          <button id="btn-back" onclick="app.prevQuestion()">Back</button>
+          <div class="progress-bar">
+            <div class="progress-fill" id="study-progress-fill"></div>
+          </div>
+          <button id="btn-next" class="primary" onclick="app.nextQuestion()">Next</button>
         </div>
-        <button id="btn-next" class="primary" onclick="app.nextQuestion()">Next</button>
+        <div style="text-align: center; margin-top: 14px; font-size: 0.85rem; color: var(--text-dim);" id="q-counter"></div>
       </div>
-      <div style="text-align: center; margin-top: 14px; font-size: 0.85rem; color: var(--text-dim);" id="q-counter"></div>
     </section>
 
     <!-- View: Global Leaderboard View -->
@@ -517,6 +536,7 @@
         this.quizWrongCount = 0;
         this.quizSkippedCount = 0;
         this.quizAnsweredMap = {}; // Tracks index: true (correct) / false (wrong) / null (skipped)
+        this.userAnswers = {}; // Tracks question ID to chosen option string
 
         // Touch tracking
         this.touchStartX = 0;
@@ -755,9 +775,9 @@
           dynamicBody = `<div class="answer-options">`;
           options.forEach((opt) => {
             let stateClass = '';
-            if (this.selectedOption !== null) {
-              if (opt === q.answer) stateClass = 'correct';
-              else if (opt === this.selectedOption) stateClass = 'incorrect';
+            // Silent Selection Mode (Does not reveal right or wrong during quiz)
+            if (this.selectedOption === opt) {
+              stateClass = 'selected-silent';
             }
             dynamicBody += `
               <button class="opt-btn ${stateClass}" onclick="app.submitQuizAnswer('${opt.replace(/'/g, "\\'")}')" ${this.selectedOption !== null ? 'disabled' : ''}>
@@ -767,9 +787,16 @@
           });
           dynamicBody += `</div>`;
         } else {
-          // Learning Viewport: Answer is visible instantly, and explanation is collapsed
+          // Learning Viewport: Answer is visible instantly, and navigation is below the correct answer
           dynamicBody = `
             <div class="answer-block">Correct Answer: ${q.answer}</div>
+            <div class="card-footer" style="margin-top: 10px;">
+              <button onclick="app.prevQuestion()">Back</button>
+              <div class="progress-bar">
+                <div class="progress-fill" id="study-progress-fill"></div>
+              </div>
+              <button class="primary" onclick="app.nextQuestion()">Next</button>
+            </div>
             ${q.explanation ? `
               <details class="explanation">
                 <summary>Show explanation</summary>
@@ -782,9 +809,17 @@
         block.innerHTML = qHead + dynamicBody;
         container.appendChild(block);
 
+        // Manage non-quiz navigation UI visibility
+        if (isQuiz) {
+          document.getElementById('study-navigation-footer').classList.remove('hidden');
+        } else {
+          document.getElementById('study-navigation-footer').classList.add('hidden');
+        }
+
         const total = this.activeQuestions.length;
         const percentage = total > 0 ? ((this.currentQuestionIdx + 1) / total) * 100 : 0;
-        document.getElementById('study-progress-fill').style.width = `${percentage}%`;
+        const progressFill = document.getElementById('study-progress-fill');
+        if (progressFill) progressFill.style.width = `${percentage}%`;
         document.getElementById('q-counter').textContent = `Question ${this.currentQuestionIdx + 1} of ${total}`;
       }
 
@@ -804,6 +839,7 @@
       submitQuizAnswer(answer) {
         this.selectedOption = answer;
         const q = this.activeQuestions[this.currentQuestionIdx];
+        this.userAnswers[q.id] = answer;
         
         if (answer === q.answer) {
           this.quizAnsweredMap[this.currentQuestionIdx] = 'correct';
@@ -835,7 +871,13 @@
       prevQuestion() {
         if (this.currentQuestionIdx > 0) {
           this.currentQuestionIdx--;
-          this.selectedOption = null;
+          // Retrieve selection state when moving backward in Quiz Mode
+          if (this.activeMode === 'quiz') {
+            const q = this.activeQuestions[this.currentQuestionIdx];
+            this.selectedOption = this.userAnswers[q.id] || null;
+          } else {
+            this.selectedOption = null;
+          }
           this.renderQuestion();
         }
       }
@@ -867,42 +909,91 @@
       async finishQuiz() {
         clearInterval(this.quizTimer);
         
-        // Calculate Final Metrics
         this.quizCorrectCount = 0;
         this.quizWrongCount = 0;
         this.quizSkippedCount = 0;
 
+        const wrongItems = [];
+        const skippedItems = [];
+
         for (let i = 0; i < this.activeQuestions.length; i++) {
           const status = this.quizAnsweredMap[i] || 'skipped';
-          if (status === 'correct') this.quizCorrectCount++;
-          else if (status === 'wrong') this.quizWrongCount++;
-          else this.quizSkippedCount++;
+          const q = this.activeQuestions[i];
+          if (status === 'correct') {
+            this.quizCorrectCount++;
+          } else if (status === 'wrong') {
+            this.quizWrongCount++;
+            wrongItems.push({
+              title: q.title,
+              userAnswer: this.userAnswers[q.id] || "No Answer",
+              correctAnswer: q.answer
+            });
+          } else {
+            this.quizSkippedCount++;
+            skippedItems.push({
+              title: q.title,
+              correctAnswer: q.answer
+            });
+          }
         }
 
-        // Render Summary Page directly inside the container
+        // Render Summary Page with deep analysis
         const container = document.getElementById('flashcard-container');
+        
+        let reviewHtml = '';
+        if (wrongItems.length > 0) {
+          reviewHtml += `<h3 style="margin-top: 24px; border-bottom: 2px solid var(--card-border); padding-bottom: 8px;">Incorrect Questions</h3>`;
+          wrongItems.forEach(item => {
+            reviewHtml += `
+              <div class="review-item">
+                <p style="font-weight: 600; margin: 0 0 6px;">${item.title}</p>
+                <div><span class="review-label review-wrong">Your Answer:</span> ${item.userAnswer}</div>
+                <div><span class="review-label review-correct">Correct Answer:</span> ${item.correctAnswer}</div>
+              </div>
+            `;
+          });
+        }
+
+        if (skippedItems.length > 0) {
+          reviewHtml += `<h3 style="margin-top: 24px; border-bottom: 2px solid var(--card-border); padding-bottom: 8px;">Skipped Questions</h3>`;
+          skippedItems.forEach(item => {
+            reviewHtml += `
+              <div class="review-item">
+                <p style="font-weight: 600; margin: 0 0 6px;">${item.title}</p>
+                <div><span class="review-label review-correct">Correct Answer:</span> ${item.correctAnswer}</div>
+              </div>
+            `;
+          });
+        }
+
         container.innerHTML = `
-          <div class="card" style="text-align: center; border: none; box-shadow: none; margin: 0;">
-            <h2 class="sora" style="color: var(--accent); margin: 0 0 16px;">Quiz Completed</h2>
-            <div style="font-size: 3rem; font-weight: 800; color: var(--text); margin-bottom: 24px;">
-              ${this.quizCorrectCount} <span style="font-size: 1.5rem; font-weight: 500; color: var(--text-dim);">/ 100</span>
-            </div>
-            <div class="grid grid-2" style="gap: 12px; text-align: left; margin-bottom: 24px;">
-              <div class="card" style="margin: 0; padding: 16px; background: var(--bg-soft); border-color: var(--card-border);">
-                <span style="font-size: 0.85rem; color: var(--text-dim); display: block;">Wrong Answers</span>
-                <strong style="font-size: 1.25rem; color: #EF4444;">${this.quizWrongCount}</strong>
+          <div class="card" style="border: none; box-shadow: none; margin: 0; padding: 0;">
+            <div style="text-align: center;">
+              <h2 class="sora" style="color: var(--accent); margin: 0 0 16px;">Quiz Completed</h2>
+              <div style="font-size: 3rem; font-weight: 800; color: var(--text); margin-bottom: 24px;">
+                ${this.quizCorrectCount} <span style="font-size: 1.5rem; font-weight: 500; color: var(--text-dim);">/ 100</span>
               </div>
-              <div class="card" style="margin: 0; padding: 16px; background: var(--bg-soft); border-color: var(--card-border);">
-                <span style="font-size: 0.85rem; color: var(--text-dim); display: block;">Skipped Questions</span>
-                <strong style="font-size: 1.25rem; color: var(--accent-2);">${this.quizSkippedCount}</strong>
+              <div class="grid grid-2" style="gap: 12px; text-align: left; margin-bottom: 24px;">
+                <div class="card" style="margin: 0; padding: 16px; background: var(--bg-soft); border-color: var(--card-border);">
+                  <span style="font-size: 0.85rem; color: var(--text-dim); display: block;">Wrong Answers</span>
+                  <strong style="font-size: 1.25rem; color: #EF4444;">${this.quizWrongCount}</strong>
+                </div>
+                <div class="card" style="margin: 0; padding: 16px; background: var(--bg-soft); border-color: var(--card-border);">
+                  <span style="font-size: 0.85rem; color: var(--text-dim); display: block;">Skipped Questions</span>
+                  <strong style="font-size: 1.25rem; color: var(--accent-2);">${this.quizSkippedCount}</strong>
+                </div>
               </div>
             </div>
-            <button class="primary" style="width: 100%; justify-content: center;" onclick="location.hash = 'lessons/${this.activeSubject}/${this.activeSource}/quiz'">Return to Lessons</button>
+            
+            <div id="quiz-review-sheet" style="text-align: left; margin-top: 16px;">
+              ${reviewHtml}
+            </div>
+            
+            <button class="primary" style="width: 100%; justify-content: center; margin-top: 24px;" onclick="location.hash = 'lessons/${this.activeSubject}/${this.activeSource}/quiz'">Return to Lessons</button>
           </div>
         `;
 
-        document.getElementById('btn-back').classList.add('hidden');
-        document.getElementById('btn-next').classList.add('hidden');
+        document.getElementById('study-navigation-footer').classList.add('hidden');
         document.getElementById('quiz-timer').textContent = '';
 
         // Write to Firestore Leaderboard
@@ -949,20 +1040,30 @@
         rows.innerHTML = '<tr><td colspan="4" style="text-align: center; color: var(--text-dim);">Loading leaderboard rankings...</td></tr>';
         
         try {
+          // Index-Free Query: Fetch entries with simple matching filters, sorting on client-side to prevent Firestore Index Exceptions
           const q = query(
             collection(db, "quiz_scores"),
             where("subject", "==", targetSub),
-            where("source", "==", "testpoint"),
-            where("lesson", "==", targetLesson),
-            orderBy("score", "desc"),
-            orderBy("secondsLeft", "desc"),
-            limit(15)
+            where("lesson", "==", targetLesson)
           );
           const querySnapshot = await getDocs(q);
+          const results = [];
+          
+          querySnapshot.forEach((doc) => {
+            results.push(doc.data());
+          });
+
+          // Sort in-memory to prevent indexing errors
+          results.sort((a, b) => {
+            if (b.score !== a.score) {
+              return b.score - a.score;
+            }
+            return b.secondsLeft - a.secondsLeft;
+          });
+
           rows.innerHTML = '';
           let rank = 1;
-          querySnapshot.forEach((doc) => {
-            const data = doc.data();
+          results.slice(0, 15).forEach((data) => {
             const tr = document.createElement('tr');
             tr.innerHTML = `
               <td>${rank++}</td>
@@ -994,8 +1095,6 @@
         if (activeView) activeView.classList.remove('hidden');
 
         document.getElementById('profileDropdown').classList.add('hidden');
-        document.getElementById('btn-back').classList.remove('hidden');
-        document.getElementById('btn-next').classList.remove('hidden');
 
         // Reset Quiz states when leaving Study view
         if (viewId !== 'study') {
@@ -1054,6 +1153,7 @@
         
         const container = document.getElementById('flashcard-container');
         container.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--text-dim);">Loading unit content...</div>';
+        document.getElementById('study-navigation-footer').classList.add('hidden');
 
         try {
           const resp = await fetch(payloadPath);
@@ -1064,6 +1164,7 @@
           if (app.activeMode === 'quiz') {
             app.quizScores = {};
             app.quizAnsweredMap = {};
+            app.userAnswers = {};
             app.quizTimeRemaining = 1800;
             app.startQuizTimer();
             app.currentQuestionIdx = 0;
